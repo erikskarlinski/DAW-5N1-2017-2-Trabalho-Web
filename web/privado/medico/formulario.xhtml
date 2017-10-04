@@ -1,0 +1,77 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets">
+    <ui:composition template="/templates/template.xhtml">
+        <ui:define name="titulo">Edição de medicos</ui:define>
+        <ui:define name="conteudo">
+            <h:form>
+                <div align="center">
+                    <p:messages/>
+                    <p:growl/>
+                    <p:panelGrid columns="2">
+                        <f:facet name="header">
+                            <p:outputLabel value="Edição de Medicos"/>
+                        </f:facet>
+                        <f:facet name="footer">
+                            <div align="center">
+                                <p:commandButton value="Cancelar"
+                                                 action="#{controleMedico.cancelar()}"
+                                                 ajax="false" immediate="true"/>
+                                <p:commandButton value="Salvar" icon="ui-icon-disk"
+                                                 action="#{controleMedico.salvar()}"
+                                                 ajax="false"/>
+                            </div>
+                        </f:facet>
+                        <p:outputLabel value="ID" rendered="#{controleMedico.objeto.id != null}"/>
+                        <p:inputText value="#{controleMedico.objeto.id}" size="5" readonly="true"
+                                     rendered="#{controleMedico.objeto.id != null}"/>
+                        <p:outputLabel value="Nome" for="txtNome"/>
+                        <p:inputText id="txtNome" value="#{controleMedico.objeto.nome}"
+                                     size="40" maxlength="40" autocomplete="off"
+                                     placeholder="Obrigatório"/>
+                        <p:outputLabel value="CRM" for="txtCRM"/>
+                        <p:inputText id="txtCRM" value="#{controleMedico.objeto.crm}"
+                                     size="40" maxlength="40" autocomplete="off"
+                                     placeholder="Obrigatório"/>
+                        <p:outputLabel value="Data Nascimento" for="txtNascimento"/>
+                        <p:inputText id="txtNascimento" value="#{controleMedico.objeto.data}"
+                                     size="40" maxlength="40" autocomplete="off"
+                                     placeholder="Obrigatório"/>
+                        <p:outputLabel value="Telefone" for="txtTelefone"/>
+                        <p:inputText id="txtTelefone" value="#{controleMedico.objeto.telefone}"
+                                     size="40" maxlength="40" autocomplete="off"
+                                     placeholder="Obrigatório"/>
+                        <p:outputLabel value="Sexo" for="txtSexo"/>
+                        <p:inputText id="txtSexo" value="#{controleMedico.objeto.sexo}"
+                                     size="40" maxlength="40" autocomplete="off"
+                                     placeholder="Obrigatório"/>
+                        <p:outputLabel value="Historico" for="txtHistorico"/>
+                        <p:inputText id="txtHistorico" value="#{controleMedico.objeto.historico}"
+                                     size="40"  autocomplete="off"
+                                     placeholder="Obrigatório"/>
+                        <p:outputLabel value="Peso" for="txtpeso"/>
+                        <p:inputText id="txtpeso" value="#{controleMedico.objeto.peso}"
+                                     size="40" maxlength="40" autocomplete="off"
+                                     placeholder="Obrigatório"/>
+                        
+                        
+                        <p:outputLabel value="Especialidade" for="selectEspecialidade"/>
+                        <p:selectOneMenu id="selectEspecialidade" value="#{controleMedico.objeto.especialidade}">
+                            <f:converter converterId="converterEspecialidade"/>
+                            <f:selectItem noSelectionOption="true" itemLabel="Selecione um registro"/>
+                            <f:selectItems value="#{controleMedico.daoEspecialidade.lista}" var="e"
+                                           itemLabel="#{e.descricao}"/>
+                        </p:selectOneMenu>
+                    </p:panelGrid>
+                </div>
+            </h:form>  
+
+        </ui:define>
+    </ui:composition>    
+
+</html>
+
