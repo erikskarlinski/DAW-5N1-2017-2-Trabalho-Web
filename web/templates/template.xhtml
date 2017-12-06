@@ -7,7 +7,7 @@
       xmlns:p="http://primefaces.org/ui">
     <f:view encoding="ISO-8859-1" contentType="text/html">
         <h:head>
-            <title><ui:insert name="titulo">aqui vai o titulo</ui:insert></title>
+            <title><ui:insert name="titulo">trabalho</ui:insert></title>
             <h:outputStylesheet library="css" name="estilos.css"/>
             <h:outputScript library="js" name="scripts.js"/>
         </h:head>
@@ -31,7 +31,10 @@
                                                 value="Manutenção de Pacientes"/>
                                     <p:menuitem action="#{controleMedicamento.listar()}"
                                                 ajax="false"
-                                                value="Manutenção de Pacientes"/>
+                                                value="Manutenção de Medicamentos"/>
+                                    <p:menuitem action="#{controleConsulta.listar()}"
+                                                ajax="false"
+                                                value="Manutenção de Consultas"/>
                                    
                                 </p:submenu>
                             </p:column>

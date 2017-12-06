@@ -28,38 +28,41 @@ public class ControleEspecialidade implements Serializable {
         return "/privado/especialidade/listar?faces-redirect=true";
     }
     
-    public String novo(){
-        objeto = new Especialidade();
-        return "formulario?faces-redirect=true";
+    public void novo(){
+        setObjeto(new Especialidade());
     }
     
-    public String salvar(){
-        if (dao.salvar(objeto)){
-            Util.mensagemInformacao(dao.getMensagem());
-            return "listar?faces-redirect=true";
+   public void salvar(){
+        boolean persistiu;
+        if (getObjeto().getId() == null){
+            persistiu = getDao().persist(getObjeto());
         } else {
-            Util.mensagemErro(dao.getMensagem());
-            return "formulario?faces-redirect=true";
+            persistiu = getDao().merge(getObjeto());
+        }
+        if (persistiu){
+            Util.mensagemInformacao(getDao().getMensagem());
+        } else {
+            Util.mensagemErro(getDao().getMensagem());
         }
     }
     
-    public String cancelar(){
-        return "listar?faces-redirect=true";
-    }
+//    public String cancelar(){
+//        return "listar?faces-redirect=true";
+//    }
     
-    public String editar(Integer id){
-        objeto = dao.localizar(id);
-        return "formulario?faces-redirect=true";
+    public void editar(Integer id){
+        setObjeto((Especialidade) getDao().localizar(id));
     }
     
     public void remover(Integer id){
-        objeto = dao.localizar(id);
-        if (dao.remover(objeto)){
-            Util.mensagemInformacao(dao.getMensagem());
+        setObjeto((Especialidade) getDao().localizar(id));
+        if (getDao().remover(getObjeto())){
+            Util.mensagemInformacao(getDao().getMensagem());
         } else {
-            Util.mensagemErro(dao.getMensagem());
+            Util.mensagemErro(getDao().getMensagem());
         }
     }
+
     
     public EspecialidadeDAO getDao() {
         return dao;

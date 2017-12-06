@@ -1,0 +1,314 @@
+<?xml version='1.0' encoding='UTF-8' ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"
+      xmlns:h="http://xmlns.jcp.org/jsf/html"
+      xmlns:ui="http://xmlns.jcp.org/jsf/facelets"
+      xmlns:p="http://primefaces.org/ui"
+      xmlns:f="http://xmlns.jcp.org/jsf/core">
+    <ui:composition template="/templates/template.xhtml">
+        <ui:define name="titulo">Listagem de Consultas</ui:define>
+        <ui:define name="conteudo">
+            <h:form id="formListagem" prependId="false">
+                <p:growl id="growl"/>
+                <p:commandButton actionListener="#{controleConsulta.novo()}"
+                                 value="Nova Consulta" icon="ui-icon-plus"
+                                 oncomplete="PF('dlg').show();"
+                                 update=":formEdicao"/>
+                <div align="center">
+                    <p:panelGrid columns="11">
+                        <p:outputLabel value="Ordem:"/>
+                        <p:selectOneMenu value="#{controleConsulta.dao.ordem}">
+                            <f:selectItem itemLabel="ID" itemValue="id"/>                            
+                            <f:selectItem itemLabel="Consulta" itemValue="medico.nome"/>
+                            <p:ajax update="listagem"/>
+                        </p:selectOneMenu>
+                        <p:outputLabel value="Filtro: "/>
+                        <p:inputText value="#{controleConsulta.dao.filtro}">
+                            <p:ajax event="keyup" update="listagem"/>
+                        </p:inputText>
+                        <p:commandButton value="Filtrar" update="listagem"/>
+                        <p:outputLabel value="Máximo de objetos"/>
+                        <p:inputText value="#{controleConsulta.dao.maximoObjetos}" size="5">
+                            <p:ajax event="keyup" update="listagem"/>
+                        </p:inputText>
+                        <p:commandButton action="#{controleConsulta.dao.primeiro()}"
+                                         value="Primeiro" update="listagem"/>
+                        <p:commandButton action="#{controleConsulta.dao.anterior()}"
+                                         value="Anterior" update="listagem"/>
+                        <p:commandButton action="#{controleConsulta.dao.proximo()}"
+                                         value="Próximo" update="listagem"/>
+                        <p:commandButton action="#{controleConsulta.dao.ultimo()}"
+                                         value="Ultimo" update="listagem"/>
+                    </p:panelGrid>
+                </div>
+                <p:dataTable value="#{controleConsulta.dao.listaObjetos}" var="obj"
+                             id="listagem">
+                    <f:facet name="header">
+                        <p:outputLabel value="Listagem de Consultas"/>
+                    </f:facet>
+                    <f:facet name="footer">
+                        <p:outputLabel value="#{controleConsulta.dao.mensagemNavegacao}"/>
+                    </f:facet>
+                    <p:column headerText="Id">
+                        <p:outputLabel value="#{obj.id}"/>
+                    </p:column>
+                    <p:column headerText="Medico">
+                        <p:outputLabel value="#{obj.medico.nome}"/>
+                    </p:column>                                                       
+                    <p:column headerText="Paciente">
+                        <p:outputLabel value="#{obj.paciente.nome}">
+                        </p:outputLabel>
+                    </p:column>  
+
+                    <p:column headerText="Pre - consulta">
+                        <p:outputLabel value="#{obj.preconsulta}">
+                        </p:outputLabel>
+                    </p:column>  
+                    <p:column headerText="Ações">
+                        <div align="center">
+
+                            <p:commandButton
+                                actionListener="#{controleConsulta.editar(obj.id)}"
+                                icon="ui-icon-pencil"
+                                update=":formEdicao"
+                                process="@form"
+                                oncomplete="PF('dlg').show();"
+                                id="btnAlterar"/>
+                            <p:commandButton
+                                actionListener="#{controleConsulta.remover(obj.id)}"
+                                icon="ui-icon-trash"
+                                update="@form"
+                                process="@form"
+                                id="btnExcluir"
+                                onclick="if (!confirm('Confirma a exclusão do objeto'))
+                                            return false"/>                          
+                        </div>
+                    </p:column>                    
+                </p:dataTable>
+            </h:form>
+        </ui:define>
+        <ui:define name="dialogos">
+            <p:dialog widgetVar="dlg" header="Edição" modal="true" resizable="false"
+                      position="center,top" width="600" height="480">
+                <h:form id="formEdicao">
+                    <p:growl id="growl"/>
+
+                    <p:tabView id="tab">
+                        <p:tab title="Dados Principais">
+                            <div align="center">
+                                <p:panelGrid columns="2">
+                                    <f:facet name="footer">
+                                        <div align="center">
+                                            <p:commandButton value="Salvar"
+                                                             icon="ui-icon-disk"
+                                                             actionListener="#{controleConsulta.salvar()}"
+                                                             oncomplete="if(!args.validationFailed){PF('dlg').hide();}"
+                                                             update=":formEdicao :formListagem"/>
+                                        </div>
+                                    </f:facet> 
+
+                                    <p:outputLabel value="ID"/>
+                                    <p:inputText value="#{controleConsulta.objeto.id}" size="5" readonly="true"/>
+
+                                    <p:outputLabel value="DATA" for="txtData"/>
+                                    <p:calendar  
+                                        value="#{controleConsulta.objeto.data}"                                                                                 pattern="dd/MM/yyyy"
+                                        id="txtData"
+                                        locale="pt_BR" size="12" mask="true">
+                                        <f:converter converterId="converterCalendar"/>
+                                    </p:calendar>
+
+
+
+                                    <p:outputLabel value="Pré-Consulta" for="txtPreConsulta"/>
+                                    <p:inputText value="#{controleConsulta.objeto.preconsulta}" 
+                                                 size="40" id="txtPreConsulta"
+                                                 maxlength="40" placeholder="obrigatório"/>
+
+                                    <p:outputLabel value="Pós-Consulta" for="txtPosConsulta"/>
+                                    <p:inputText value="#{controleConsulta.objeto.posconsulta}" 
+                                                 size="40" id="txtPosConsulta"
+                                                 maxlength="40" placeholder="obrigatório"/>
+
+                                    <p:outputLabel value="Medico" for="selectMedico"/>
+                                    <p:selectOneMenu value="#{controleConsulta.objeto.medico}"
+                                                     id="selectMedico">
+                                        <f:converter converterId="converterMedico"/>
+                                        <f:selectItems value="#{controleConsulta.daoMedico.listaObjetos}" 
+                                                       var="c"
+                                                       itemLabel="#{c.nome}"/>
+                                    </p:selectOneMenu>
+
+                                    <p:outputLabel value="Paciente" for="selectPaciente"/>
+                                    <p:selectOneMenu value="#{controleConsulta.objeto.paciente}"
+                                                     id="selectPaciente">
+                                        <f:converter converterId="converterPaciente"/>
+                                        <f:selectItems value="#{controleConsulta.daoPaciente.listaObjetos}" 
+                                                       var="p"
+                                                       itemLabel="#{p.nome}"/>
+                                    </p:selectOneMenu>
+
+                                </p:panelGrid>
+                            </div>
+                        </p:tab>
+
+                        <p:tab title="Exames">
+                            <p:dataTable value="#{controleConsulta.objeto.listaExames}"
+                                         var="exa" rowIndexVar="idxdis" id="listaExames">
+                                <f:facet name="header">
+                                    <p:commandButton value="Novo Exame"
+                                                     actionListener="#{controleConsulta.novoExame()}"
+                                                     update=":formExame"
+                                                     icon="ui-icon-plus"
+                                                     id="btnNovoExame"
+                                                     process="btnNovoExame"
+                                                     oncomplete="PF('dlgExame').show();" />
+                                </f:facet>
+
+                                <p:column headerText="Exame">
+                                    <p:outputLabel value="#{exa.nome}" />
+                                </p:column>
+
+                                <p:column headerText="Ações">
+
+                                    <p:commandButton id="btnAlterarExame"
+                                                     icon="ui-icon-pencil"
+                                                     actionListener="#{controleConsulta.alterarExame(index)}"
+                                                     update=":formExame"
+                                                     process="btnAlterarExame" 
+                                                     oncomplete="PF('dlgExame').show();"
+                                                     />
+
+                                    <p:commandButton id="btnRemoverExame"
+                                                     actionListener="#{controleConsulta.removerExame(idxdis)}"
+                                                     process="btnRemoverExame"
+                                                     update="listaExames :formEdicao:growl"
+                                                     icon="ui-icon-trash" />
+                                </p:column>
+
+                            </p:dataTable>
+                        </p:tab>
+
+                        <p:tab title="Receituarios">
+                            <p:dataTable value="#{controleConsulta.objeto.listaReceituarios}"
+                                         var="rec" rowIndexVar="idxrec" id="listaReceituarios">
+                                <f:facet name="header">
+                                    <p:commandButton value="Novo Receituario"
+                                                     actionListener="#{controleConsulta.novoReceituario()}"
+                                                     update=":formReceituario"
+                                                     icon="ui-icon-plus"
+                                                     id="btnNovoReceituario"
+                                                     process="btnNovoReceituario"
+                                                     oncomplete="PF('dlgReceituario').show();" />
+                                </f:facet>
+
+                                <p:column headerText="Receituario">
+                                    <p:outputLabel value="#{rec.posologia}" />
+                                </p:column>
+
+                                <p:column headerText="Ações">
+
+                                    <p:commandButton id="btnAlterarReceituario"
+                                                     icon="ui-icon-pencil"
+                                                     actionListener="#{controleConsulta.alterarReceituario(idxrec)}"
+                                                     update=":formReceituario"
+                                                     process="btnAlterarReceituario" 
+                                                     oncomplete="PF('dlgReceituario').show();"
+                                                     />
+
+                                    <p:commandButton id="btnRemoverReceituario"
+                                                     actionListener="#{controleConsulta.removerReceituario(idxrec)}"
+                                                     process="btnRemoverReceituario"
+                                                     update="listaReceituarios :formEdicao:growl"
+                                                     icon="ui-icon-trash" />
+                                </p:column>
+
+                            </p:dataTable>
+                        </p:tab>
+
+                    </p:tabView>
+
+
+
+                </h:form>
+                <ui:include src="/templates/ajaxstatus.xhtml"/>
+            </p:dialog>
+
+            <p:dialog header="Edição de Exame"
+                      widgetVar="dlgExame"
+                      resizable="false" modal="true" >
+                <h:form id="formExame">
+                    <p:growl />
+                    <p:panelGrid columns="2">
+                        <f:facet name="footer">
+                            <div align="center">
+                                <p:commandButton value="Salvar" icon="ui-icon-disk"
+                                                 action="#{controleConsulta.adicionarExame()}"
+                                                 update=":formEdicao:tab:listaExames"
+                                                 process=":formExame btnSalvarExame"
+                                                 id="btnSalvarExame"
+                                                 oncomplete="if(!args.validationFailed) PF('dlgExame').hide();"/>
+                            </div>
+                        </f:facet>
+
+                        <p:outputLabel value="Id" for="txtId"/>
+                        <p:inputText id="txtId" value="#{controleConsulta.exame.id}" placeholder="Obrigatório" readonly="true"/>
+
+                        <p:outputLabel value="Nome" for="txtNome"/>
+                        <p:inputText id="txtNome" value="#{controleConsulta.exame.nome}"
+                                     size="50" maxlength="50" placeholder="Obrigatório"/>
+
+                        <p:outputLabel value="Descrição" for="txtDescricao"/>
+                        <p:inputText id="txtDescricao" value="#{controleConsulta.exame.descricao}"
+                                     size="50" maxlength="50" placeholder="Obrigatório"/>
+
+                    </p:panelGrid>
+                </h:form>
+            </p:dialog>
+
+            <p:dialog header="Edição de Receituario"
+                      widgetVar="dlgReceituario"
+                      resizable="false" modal="true" >
+                <h:form id="formReceituario">
+                    <p:growl />
+                    <p:panelGrid columns="2">
+                        <f:facet name="footer">
+                            <div align="center">
+                                <p:commandButton value="Salvar" icon="ui-icon-disk"
+                                                 action="#{controleConsulta.adicionarReceituario()}"
+                                                 update=":formEdicao:tab:listaReceituarios"
+                                                 process=":formReceituario btnSalvarReceituario"
+                                                 id="btnSalvarReceituario"
+                                                 oncomplete="if(!args.validationFailed) PF('dlgReceituario').hide();"/>
+                            </div>
+                        </f:facet>
+
+                        <p:outputLabel value="Id" for="txtId"/>
+                        <p:inputText id="txtId" value="#{controleConsulta.receituario.id}" placeholder="Obrigatório" readonly="true"/>
+
+
+                        <p:outputLabel value="Posologia" for="txtPosologia"/>
+                        <p:inputText id="txtPosologia" value="#{controleConsulta.receituario.posologia}"
+                                     size="50" maxlength="50" placeholder="Obrigatório"/>
+                        <p:outputLabel value="Validade" for="txtValidade"/>
+                        <p:calendar id="txtValidade" value="#{controleConsulta.receituario.data_nascimento}"
+                                                mask="true" pattern="dd/MM/yyyy" navigator="true">
+                                        <f:converter converterId="converterCalendar"/>
+                                    </p:calendar>
+
+
+
+
+
+
+                    </p:panelGrid>
+                </h:form>
+            </p:dialog>
+
+
+
+
+        </ui:define>       
+    </ui:composition>
+</html>
+

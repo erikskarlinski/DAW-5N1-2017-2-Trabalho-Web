@@ -8,62 +8,65 @@ import java.io.Serializable;
 import javax.faces.bean.ManagedBean;
 import javax.faces.bean.SessionScoped;
 
-
 @ManagedBean(name = "controlePaciente")
 @SessionScoped
-public class ControlePaciente implements Serializable {
+public class ControlePaciente implements Serializable{
     
-    private PacienteDAO dao;
+    private PacienteDAO<Paciente> dao;
     private Paciente objeto;
-    private EspecialidadeDAO daoEspecialidade;
     
     public ControlePaciente(){
-        dao = new PacienteDAO();
-        daoEspecialidade = new EspecialidadeDAO();
+        dao = new PacienteDAO<>();
     }
     
     public String listar(){
         return "/privado/paciente/listar?faces-redirect=true";
     }
     
-    public String novo(){
-        objeto = new Paciente();
-        return "formulario?faces-redirect=true";
+    public void novo(){
+        setObjeto(new Paciente());
     }
     
-    public String salvar(){
-        if (dao.salvar(objeto)){
-            Util.mensagemInformacao(dao.getMensagem());
-            return "listar?faces-redirect=true";
+   public void salvar() {
+        boolean p;
+        if (getObjeto().getId() == null) {
+            p = dao.persist(getObjeto());
         } else {
-            Util.mensagemErro(dao.getMensagem());
-            return "formulario?faces-redirect=true";
+            p = dao.merge(getObjeto());
         }
-    }
-    
-    public String cancelar(){
-        return "listar?faces-redirect=true";
-    }
-    
-    public String editar(Integer id){
-        objeto = dao.localizar(id);
-        return "formulario?faces-redirect=true";
-    }
-    
-    public void remover(Integer id){
-        objeto = dao.localizar(id);
-        if (dao.remover(objeto)){
+        if (p) {
             Util.mensagemInformacao(dao.getMensagem());
         } else {
             Util.mensagemErro(dao.getMensagem());
         }
     }
     
-    public PacienteDAO getDao() {
+    
+    
+    public void editar(Integer id){
+        
+        try {
+            setObjeto(dao.localizar(id));
+            
+        } catch (Exception e) {
+            Util.mensagemErro("Erro ao recuperar objeto: "+Util.getMensagemErro(e));
+            
+        }
+    }
+    
+    public void remover(Integer id) {
+        if (dao.remover(dao.localizar(id))) {
+            Util.mensagemInformacao(dao.getMensagem());
+        } else {
+            Util.mensagemErro(dao.getMensagem());
+        }
+    }
+
+    public PacienteDAO<Paciente> getDao() {
         return dao;
     }
 
-    public void setDao(PacienteDAO dao) {
+    public void setDao(PacienteDAO<Paciente> dao) {
         this.dao = dao;
     }
 
@@ -74,13 +77,6 @@ public class ControlePaciente implements Serializable {
     public void setObjeto(Paciente objeto) {
         this.objeto = objeto;
     }
-
-    public EspecialidadeDAO getDaoEspecialidade() {
-        return daoEspecialidade;
-    }
-
-    public void setDaoEspecialidade(EspecialidadeDAO daoEspecialidade) {
-        this.daoEspecialidade = daoEspecialidade;
-    }
-
+    
 }
+
